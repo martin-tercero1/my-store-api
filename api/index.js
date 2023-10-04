@@ -4,7 +4,7 @@ const { errorLogger, errorHandler, boomErrorHandler } = require('./middlewares/e
 const cors = require('cors');
 
 const app = express();
-const port = 8016;
+const port = process.env.PORT || 8016;
 
 app.use(express.json())
 
@@ -20,11 +20,11 @@ const options = {
 }
 app.use(cors(options))
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.send('Server');
 });
 
-app.get('/home', (req, res) => {
+app.get('/api/home', (req, res) => {
   res.send('Server');
 });
 
