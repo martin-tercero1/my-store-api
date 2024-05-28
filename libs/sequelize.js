@@ -6,10 +6,10 @@ const setupModels = require('../db/models');
 // const PASSWORD = encodeURIComponent(config.dbPassword);
 // const URI = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${config.dbName}`;
 
-const options = { dialect: 'postgres', logging: config.isProd ? false : true };
+const options = { dialect: config.dbEngine, logging: config.isProd ? false : true };
 
 if (config.isProd) {
-  options.dialectMode = require('pg');
+  options.dialectModule = require('pg');
 }
 
 const sequelize = new Sequelize(config.dbURL, options);
