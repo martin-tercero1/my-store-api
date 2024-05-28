@@ -4,6 +4,7 @@ const {
   errorLogger,
   errorHandler,
   boomErrorHandler,
+  ormErrorHandler,
 } = require('./middlewares/errorHandler');
 const cors = require('cors');
 
@@ -24,7 +25,7 @@ app.get('/api/home', (req, res) => {
 routerApi(app);
 
 const whitelist = [
-  'http://localhost:8016',
+  'http://localhost:3000',
   'https://martin-tercero.com',
   'https://my-store-api-git-main-martin-terceros-projects.vercel.app',
   'https://my-store-api-martin-terceros-projects.vercel.app',
@@ -32,7 +33,7 @@ const whitelist = [
 ];
 const options = {
   origin: (origin, callback) => {
-    console.log(origin)
+    console.log("origin", origin)
     if (whitelist.includes(origin)) {
       callback(null, true);
     } else {
@@ -44,6 +45,7 @@ app.use(cors(options));
 // Error middlewares should be defined after the routing
 // Also the order of execution is the order of declaration
 app.use(errorLogger);
+app.use(ormErrorHandler)
 app.use(boomErrorHandler);
 app.use(errorHandler);
 

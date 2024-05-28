@@ -238,3 +238,4 @@ $RECYCLE.BIN/
 
 /node_modules
 /postgres_data
+/mysql_data

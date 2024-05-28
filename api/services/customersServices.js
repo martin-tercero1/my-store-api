@@ -2,37 +2,27 @@ const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
 const { models } = require('../../libs/sequelize');
 
-class UsersService {
+class CustomersService {
   constructor() {
-    this.users = [];
-    this.generate();
-  }
-
-  generate(size = 10) {
-    for (let index = 0; index < size; index++) {
-      this.users.push({
-        id: faker.string.uuid(),
-        email: faker.internet.email(),
-        //name: faker.commerce.userName(),
-        password: faker.internet.password()
-      });
-    }
   }
 
   async create(data) {
-    const newUser = await models.users.create(data);
-    return newUser;
+    // We can create on the go, the user and then the customer
+    const newCustomer = await models.customers.create(data, {
+      include: ['user']
+    });
+    return newCustomer;
   }
 
   async find() {
-    const response = await models.users.findAll({
-      include: ['customer']
+    const response = await models.customers.findAll({
+      include: ['user']
     });
     return response;
   }
 
   async findOne(id) {
-    const user = await models.users.findByPk(id);
+    const user = await models.customers.findByPk(id);
 
     if (!user) {
       throw boom.notFound('user not found');
@@ -70,9 +60,9 @@ class UsersService {
       throw boom.conflict('user is blocked');
     } else {
       user.destroy();
-      return id;
+      return { response: true };
     }
   }
 }
 
-module.exports = UsersService;
+module.exports = CustomersService;

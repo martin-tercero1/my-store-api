@@ -19,19 +19,25 @@ const UserSchema = {
     allowNull: false,
     type: DataTypes.STRING
   },
+  role: {
+    allowNull: false,
+    type: DataTypes.STRING,
+    defaultValue: 'customer'
+  },
   createdAt: {
     allowNull: false,
     type: DataTypes.DATE,
     field: 'created_at',
     defaultValue: Sequelize.NOW
-  }
+  },
 }
 
 // Thanks to Model we can access methods like find
 // Static methods allows to access them without having a declaration
 class Users extends Model {
-  static associate() {
+  static associate(models) {
     // relations to models
+    this.hasOne(models.customers, { as: 'customer', foreignKey: 'user_id' });
   }
 
   static config(sequelize) {

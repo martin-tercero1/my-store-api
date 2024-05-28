@@ -1,9 +1,17 @@
 const Joi = require('joi');
 
-const id = Joi.string().uuid();
+const id = Joi.number().integer();
 const name = Joi.string().max(15).min(3);
 const price = Joi.number().integer().min(10).max(1500);
+const description = Joi.string.min(10);
 const image = Joi.string().uri();
+const categoryId = Joi.number().integer();
+
+const price_min = Joi.number().integer();
+const price_max = Joi.number().integer();
+
+const limit = Joi.number().integer();
+const offset = Joi.number().integer();
 
 const getProduct = Joi.object({
   id: id.required(),
@@ -12,17 +20,30 @@ const getProduct = Joi.object({
 const createProduct = Joi.object({
   name: name.required(),
   price: price.required(),
-  image: image.required()
+  description: description.required(),
+  image: image.required(),
+  categoryId: categoryId.required()
 });
 
 const updateProduct = Joi.object({
   name: name,
   price: price,
-  image: image
+  image: image,
+  description,
+  categoryId
 });
+
+const queryProduct = Joi.object({
+  limit,
+  offset,
+  price,
+  price_min,
+  price_max: price_max.greater(Joi.ref('price_min'))
+}).with('price_min', 'price_max').with('price_max', 'price_min');
 
 module.exports = {
   getProduct,
   createProduct,
-  updateProduct
+  updateProduct,
+  queryProduct
 }
