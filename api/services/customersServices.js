@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
+const bcrypt = require('bcrypt');
 const { models } = require('../../libs/sequelize');
 
 class CustomersService {
@@ -7,10 +8,16 @@ class CustomersService {
   }
 
   async create(data) {
+    const hash = await bcrypt.hash(data.user.password, 10);
+    const newData = {...data, user: {
+      ...data.user,
+      password: hash
+    }}
     // We can create on the go, the user and then the customer
-    const newCustomer = await models.customers.create(data, {
+    const newCustomer = await models.customers.create(newData, {
       include: ['user']
     });
+    delete newCustomer.user.dataValues.password
     return newCustomer;
   }
 

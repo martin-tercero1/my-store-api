@@ -5,6 +5,19 @@ class OrdersService {
   constructor() {}
 
   async create(data) {
+    const customer = await models.customers.findOne({
+      where: {
+        '$user.id$': data.userId
+      },
+      include: ['user']
+    });
+
+    if(!customer) {
+      throw boom.notFound('Customer not found');
+    }
+
+    data.customerId = customer.id;
+
     const newOrder = await models.orders.create(data);
     return newOrder;
   }
@@ -27,4 +40,22 @@ class OrdersService {
     });
     return order;
   }
+
+  async findByUser(userId) {
+    const orders = await models.orders.findAll({
+      where: {
+        '$customer.user.id$': userId
+      },
+      include: [
+        {
+          association: 'customer',
+          include: ['user']
+        }
+      ]
+    });
+
+    return orders;
+  }
 }
+
+module.exports = OrdersService

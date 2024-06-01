@@ -1,11 +1,15 @@
 const express = require('express');
+const passport = require('passport');
 const categoriesServices = require('../services/categoriesServices');
 const validatorHandler = require('./../middlewares/validator.handler');
+const { checkAdminRole, checkRoles } = require('./../middlewares/authHandler');
 const {
   createCategory,
   updateCategory,
   getCategory,
 } = require('./../schemas/categoriesSchema');
+
+// TO DO - Protect the rest of the routes
 
 const router = express.Router();
 
@@ -24,17 +28,23 @@ const router = express.Router();
 //   });
 // });
 
-router.get('/', async (req, res, next) => {
-  try {
-    const categories = await categoriesServices.find();
-    res.json(categories);
-  } catch (error) {
-    next(error);
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
+  async (req, res, next) => {
+    try {
+      const categories = await categoriesServices.find();
+      res.json(categories);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get(
   '/:id',
+  checkRoles('admin', 'customer'),
   validatorHandler(getCategory, 'params'),
   async (req, res, next) => {
     try {
@@ -49,6 +59,8 @@ router.get(
 
 router.post(
   '/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin'),
   validatorHandler(createCategory, 'body'),
   async (req, res, next) => {
     try {

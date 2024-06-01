@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
+const bcrypt = require('bcrypt');
 const { models } = require('../../libs/sequelize');
 
 class UsersService {
@@ -14,19 +15,30 @@ class UsersService {
         id: faker.string.uuid(),
         email: faker.internet.email(),
         //name: faker.commerce.userName(),
-        password: faker.internet.password()
+        password: faker.internet.password(),
       });
     }
   }
 
   async create(data) {
-    const newUser = await models.users.create(data);
+    const hash = await bcrypt.hash(data.password, 10);
+    const newUser = await models.users.create({ ...data, password: hash });
+
+    // dataValues because we are using sequelize
+    delete newUser.dataValues.password;
     return newUser;
   }
 
   async find() {
     const response = await models.users.findAll({
-      include: ['customer']
+      include: ['customer'],
+    });
+    return response;
+  }
+
+  async findByEmail(email) {
+    const response = await models.users.findOne({
+      where: { email }
     });
     return response;
   }

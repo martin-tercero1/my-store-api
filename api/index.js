@@ -7,6 +7,7 @@ const {
   ormErrorHandler,
 } = require('./middlewares/errorHandler');
 const cors = require('cors');
+const { checkAPIKey } = require('./middlewares/authHandler');
 
 const app = express();
 const port = process.env.PORT || 8016;
@@ -18,10 +19,13 @@ app.get('/api', (req, res) => {
   res.send('Server');
 });
 
-app.get('/api/home', (req, res) => {
-  res.send('Server');
-});
-
+app.get('/api/home',
+  checkAPIKey,
+  (req, res) => {
+    res.send('Server');
+  }
+);
+app.use(passport.initialize());
 routerApi(app);
 
 const whitelist = [
@@ -42,6 +46,7 @@ const options = {
   },
 };
 app.use(cors(options));
+require('./utils/auth');
 // Error middlewares should be defined after the routing
 // Also the order of execution is the order of declaration
 app.use(errorLogger);
